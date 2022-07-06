@@ -26,6 +26,17 @@ func getImage(filepath string) (*canvas.Image, error) {
 	return image, nil
 }
 
+// updateImage takes the image canvas and a filepath. It checks if the
+// file exists and loads it into the canvas if that is the case.
+func updateImage(image *canvas.Image, filepath string) *canvas.Image {
+	if _, err := os.Stat(filepath); err == nil {
+		image.File = filepath
+		image.Refresh()
+	}
+
+	return image
+}
+
 func main() {
 	// Initialize a new fyne app
 	a := app.New()
@@ -38,12 +49,16 @@ func main() {
 
 	// Define filename
 	filepath := "./Example.png"
+	filepath2 := "./Example2.png"
 
 	// Get image container
 	imageContainer, err := getImage(filepath)
 	if err != nil {
 		log.Fatalf("Error creating image: %v\n", err)
 	}
+
+	// Assign new image to container
+	updateImage(imageContainer, filepath2)
 
 	//Assign content to window
 	w.SetContent(imageContainer)
