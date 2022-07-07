@@ -47,23 +47,36 @@ func updateImage(image *canvas.Image, filepath string) *canvas.Image {
 
 // fillList takes a List type and fills it with files contained in the
 // given directory.
-func fillList() *widget.List {
-	// Get list of files in directory
-	files, err := ioutil.ReadDir("./")
-	if err != nil {
-		log.Fatalf("Error reading directory: %v\n", err)
-	}
-
+func fillList(image *canvas.Image, files []string) *widget.List {
 	// Instantiate new list
 	list := widget.NewList(func() int {
 		return len(files)
 	}, func() fyne.CanvasObject {
 		return widget.NewLabel("Template")
 	}, func(id widget.ListItemID, object fyne.CanvasObject) {
-		object.(*widget.Label).SetText(files[id].Name())
+		object.(*widget.Label).SetText(files[id])
 	})
 
 	return list
+}
+
+// Get folder contents
+func getFolderContents(folder string) ([]string, error) {
+	// Get list of files in directory
+	files, err := ioutil.ReadDir(folder)
+	if err != nil {
+		log.Fatalf("Error reading directory: %v\n", err)
+	}
+
+	// Create new slice to store filepaths
+	var filepaths []string
+
+	// Loop through files and add filepaths to slice
+	for _, file := range files {
+		filepaths = append(filepaths, file.Name())
+	}
+
+	return filepaths, nil
 }
 
 func main() {
@@ -86,7 +99,14 @@ func main() {
 		log.Fatalf("Error creating image: %v\n", err)
 	}
 
-	list := fillList()
+	// Get folder contents
+	files, err := getFolderContents("./")
+	if err != nil {
+		log.Fatalf("Error getting folder contents: %v\n", err)
+	}
+
+	// Fill list container
+	list := fillList(imageContainer, files)
 
 	// Assign new image to container
 	updateImage(imageContainer, filepath2)
